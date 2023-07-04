@@ -1,19 +1,13 @@
 import { filter, groupBy, reject, sumBy, values } from 'lodash'
-import { User } from 'lucide-react'
-import { useState } from 'react'
+import { RefreshCcw, User } from 'lucide-react'
 import Bar from './BarChart'
+import { Button } from './components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
 import useHabitData, { HabitData, HabitHeader } from './hook/habitData'
+import { timeDifference } from './util/time'
 
 type DurationOptions = 'oneWeek' | 'twoWeeks' | 'oneMonth' | 'threeMonths' | 'sixMonths' | 'oneYear'
-const durationOptions: DurationOptions[] = [
-  'oneWeek',
-  'twoWeeks',
-  'oneMonth',
-  'threeMonths',
-  'sixMonths',
-  'oneYear',
-]
+
 const months = [
   'January',
   'Febuary',
@@ -37,12 +31,8 @@ const day = Math.floor(diff / oneDay)
 console.log('Day of year: ' + day)
 
 function App() {
-  const [value, setValue] = useState<DurationOptions>('oneMonth')
-
-  const { habitData, habitHeaders } = useHabitData()
-
+  const { habitData, habitHeaders, lastFetched, refreshData } = useHabitData()
   const dataByMonth = groupBy(habitData, ({ date }: { date: Date }) => date.getMonth())
-
   const volumeByMonth: { month: string; count: number; projected?: number }[] = values(
     dataByMonth
   ).map((dataset, index) => ({
@@ -57,10 +47,7 @@ function App() {
   }
 
   const numericHeaders = reject(habitHeaders, { datatype: 'boolean' })
-
   const dataThisMonth = filter(habitData, ({ date }) => date.getMonth() === now.getMonth())
-
-  // console.log(numericFields)
   console.log(dataThisMonth)
 
   // const pushupsAverage = (
@@ -80,24 +67,9 @@ function App() {
           <div className='flex items-center space-x-4'>
             <span>Blake Eriks</span>
             <User className='h-6 w-6' />
-            {/* <Select value={value}>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {durationOptions.map(option => (
-                    <SelectItem key={option} value={option}>
-                      {startCase(option)}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Button>
-              <Download className='mr-2 h-4 w-4' />
-              Download
-            </Button> */}
+            <Button variant='outline' onClick={refreshData}>
+              <RefreshCcw />
+            </Button>
           </div>
         </div>
         <div className='flex items-start p-4 space-x-4'>
@@ -114,12 +86,13 @@ function App() {
               <HabitCard key={index} habit={header} data={dataThisMonth} />
             ))}
           </div>
-          {/* <div className='h-96 w-1/2 shadow-xl border rounded-lg p-4'> */}
-          {/* <h3 className='text-xl px-3'></h3> */}
-
-          {/* <h3 className='text-2xl'>Pushup Counter: {pushupsCount}</h3>
-            <h3 className='text-2xl'>Daily Average: {pushupsAverage}</h3> */}
-          {/* </div> */}
+        </div>
+        <div className='border-t p-4'>
+          {lastFetched && (
+            <p className='italic text-right text-slate-600'>
+              last updated {timeDifference(lastFetched)}
+            </p>
+          )}
         </div>
       </div>
     </div>
@@ -158,11 +131,13 @@ const HabitCard = ({ habit, data }: { habit: HabitHeader; data: HabitData[] }) =
   return (
     <Card className='flex-1'>
       <CardTitle className='relative border-b'>
-        <CardHeader className='font-light text-center h-24 justify-center'>{label}</CardHeader>
+        <CardHeader className='font-light text-center h-16 justify-center px-2 py-0'>
+          {label}
+        </CardHeader>
         <div className='absolute top-0 left-0 text-[16px] p-1 border-b border-r'>{icon}</div>
       </CardTitle>
-      <CardContent className='pb-0 bg-[#e5e7eb]'>
-        <h1 className='text-5xl text-slate-800 text-center leading-relaxed font-semibold'>
+      <CardContent className='pb-0'>
+        <h1 className='text-2xl text-slate-800 text-center leading-relaxed font-semibold'>
           {cardData.average}
         </h1>
       </CardContent>

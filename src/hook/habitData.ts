@@ -1,5 +1,5 @@
 import { camelCase } from 'lodash'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 export type HabitData = {
   date: Date
@@ -38,15 +38,26 @@ const useHabitData = () => {
   const [rawHabitData, setRawHabitData] = useState<string | null>(localStorage.getItem('data'))
   const [habitData, setHabitData] = useState<HabitData[]>([])
   const [habitHeaders, setHabitHeaders] = useState<HabitHeader[]>([])
+  const [lastFetched, setLastFetched] = useState<Date | null>(() => {
+    const lastFetched = localStorage.getItem('lastFetched')
+    return lastFetched ? new Date(lastFetched) : null
+  })
+
+  const refreshData = useCallback(async () => {
+    fetch(HABIT_DATA_URL)
+      .then(res => res.text())
+      .then(data => {
+        setRawHabitData(data)
+        localStorage.setItem('data', data)
+        const now = new Date()
+        setLastFetched(now)
+        localStorage.setItem('lastFetched', now.toISOString())
+      })
+  }, [])
 
   useEffect(() => {
     if (!rawHabitData) {
-      fetch(HABIT_DATA_URL)
-        .then(res => res.text())
-        .then(data => {
-          setRawHabitData(data)
-          localStorage.setItem('data', data)
-        })
+      refreshData()
     } else {
       const { parsedData, headers } = parseData(rawHabitData)
       setHabitData(parsedData)
@@ -54,7 +65,7 @@ const useHabitData = () => {
     }
   }, [rawHabitData])
 
-  return { habitData, habitHeaders }
+  return { habitData, habitHeaders, lastFetched, refreshData }
 }
 
 const parseData = (rawData: string) => {
