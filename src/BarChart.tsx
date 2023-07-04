@@ -1,44 +1,28 @@
 import { ResponsiveBar } from '@nivo/bar'
 
-const Bar = ({ data }: any) => {
+const BarChart = ({ data, index, keys, colors, defs, fill, padding, margin, axisBottom }: any) => {
+  const dataWithIndex = data.map((d: any, i: number) => ({ ...d, index: i }))
+
   return (
     <div className='h-[200px]'>
       <ResponsiveBar
-        data={data}
-        keys={['count', 'projected']}
-        indexBy='month'
-        margin={{ left: -20, top: 5, bottom: 20 }}
-        padding={0.3}
+        data={dataWithIndex}
+        keys={keys}
+        indexBy={index}
+        margin={margin}
+        padding={padding}
         valueScale={{ type: 'linear' }}
         enableGridY={false}
-        colors={['#adfa1d', '#fff']}
-        label={d => `${d.data.count}`}
+        colors={colors}
+        // label={d => `${d.data.count}`}
         animate={true}
-        axisBottom={{
-          tickSize: 0,
-        }}
+        axisBottom={axisBottom}
         enableLabel={false}
-        defs={[
-          {
-            id: 'dots',
-            type: 'patternLines',
-            background: 'inherit',
-            color: '#adfa1d',
-            spacing: 6,
-            lineWidth: 1,
-          },
-        ]}
-        fill={[
-          {
-            match: {
-              id: 'projected',
-            },
-            id: 'dots',
-          },
-        ]}
+        defs={defs}
+        fill={fill}
       />
     </div>
   )
 }
 
-export default Bar
+export default BarChart

@@ -15,6 +15,7 @@ export type HabitHeader = {
 }
 
 const parseTime = (value: string) => {
+  if (!value) return false
   const [hour, minute] = value.split(':')
   const date = new Date()
   date.setHours(Number(hour), Number(minute), 0, 0)
@@ -89,7 +90,9 @@ const parseData = (rawData: string) => {
     const date = new Date(`${month} ${day}, 2023`)
 
     // End if date is in the future
-    if (date > new Date()) break
+    // if (date > new Date()) break
+    // End if date is in next month
+    if (date.getMonth() > new Date().getMonth()) break
 
     const item: HabitData = { date, count: 0 }
 

@@ -1,42 +1,48 @@
 import { filter, groupBy, reject, sumBy, values } from 'lodash'
 import { RefreshCcw, User } from 'lucide-react'
-import Bar from './BarChart'
+import { useState } from 'react'
+import DailyBarChart from './DailyBarChart'
+import Nav from './Nav'
 import { Button } from './components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from './components/ui/select'
 import useHabitData, { HabitData, HabitHeader } from './hook/habitData'
 import { timeDifference } from './util/time'
 
 type DurationOptions = 'oneWeek' | 'twoWeeks' | 'oneMonth' | 'threeMonths' | 'sixMonths' | 'oneYear'
-
 const months = [
-  'January',
-  'Febuary',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  { icon: '❄️', label: 'January' },
+  { icon: '🌹', label: 'Febuary' },
+  { icon: '☘️', label: 'March' },
+  { icon: '🌺', label: 'April' },
+  { icon: '🐝', label: 'May' },
+  { icon: '🌼', label: 'June' },
+  { icon: '☀️', label: 'July' },
+  { icon: '🍎', label: 'August' },
+  { icon: '🍁', label: 'September' },
+  { icon: '🎃', label: 'October' },
+  { icon: '🦃', label: 'November' },
+  { icon: '🎄', label: 'December' },
 ]
 
 const now = new Date()
-const start = new Date(now.getFullYear(), 0, 0)
-const diff = now.getTime() - start.getTime()
-const oneDay = 1000 * 60 * 60 * 24
-const day = Math.floor(diff / oneDay)
-console.log('Day of year: ' + day)
 
-function App() {
+const App = () => {
   const { habitData, habitHeaders, lastFetched, refreshData } = useHabitData()
   const dataByMonth = groupBy(habitData, ({ date }: { date: Date }) => date.getMonth())
+  const [context, setContext] = useState<string>(months[new Date().getMonth()].label)
   const volumeByMonth: { month: string; count: number; projected?: number }[] = values(
     dataByMonth
   ).map((dataset, index) => ({
-    month: months[index].slice(0, 3),
+    month: months[index].label.slice(0, 3),
     count: sumBy(dataset, 'count'),
   }))
 
@@ -48,6 +54,10 @@ function App() {
 
   const numericHeaders = reject(habitHeaders, { datatype: 'boolean' })
   const dataThisMonth = filter(habitData, ({ date }) => date.getMonth() === now.getMonth())
+  const compactedDataThisMonth = filter(
+    dataThisMonth,
+    ({ date }) => date.getDate() <= now.getDate()
+  )
   console.log(dataThisMonth)
 
   // const pushupsAverage = (
@@ -63,7 +73,30 @@ function App() {
     <div className='flex items-center justify-center h-screen w-full'>
       <div className='flex-1 shadow-lg bg-background border max-w-5xl space-y-4 rounded-lg'>
         <div className='flex h-16 items-center justify-between border-b p-4'>
-          <h2 className='text-3xl font-bold '>Habit Dashboard</h2>
+          <div className='flex space-x-4'>
+            <Select value={context} onValueChange={setContext}>
+              <SelectTrigger className='w-40 text-md'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='year' className='text-md border-b'>
+                  📆 2023
+                </SelectItem>
+                <SelectGroup>
+                  <SelectLabel>Months</SelectLabel>
+                  {months
+                    .slice(0, now.getMonth() + 1)
+                    .reverse()
+                    .map(({ icon, label }, index) => (
+                      <SelectItem key={index} value={label} className='text-md'>
+                        {icon} {label}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <Nav />
+          </div>
           <div className='flex items-center space-x-4'>
             <span>Blake Eriks</span>
             <User className='h-6 w-6' />
@@ -72,18 +105,21 @@ function App() {
             </Button>
           </div>
         </div>
-        <div className='flex items-start p-4 space-x-4'>
+        <div className='px-4'>
+          <h2 className='text-3xl font-bold tracking-tight'>Habit Dashboard</h2>
+        </div>
+        <div className='flex items-start px-4 space-x-4'>
           <Card className='w-1/2'>
             <CardTitle>
               <CardHeader>Habit Volume</CardHeader>
             </CardTitle>
-            <CardContent>
-              <Bar data={volumeByMonth} />
+            <CardContent className='pb-2'>
+              <DailyBarChart data={dataThisMonth} keys={['count']} />
             </CardContent>
           </Card>
           <div className='flex w-1/2 space-x-4'>
             {numericHeaders.map((header, index) => (
-              <HabitCard key={index} habit={header} data={dataThisMonth} />
+              <HabitCard key={index} habit={header} data={compactedDataThisMonth} />
             ))}
           </div>
         </div>
