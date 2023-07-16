@@ -8,7 +8,6 @@ const DailyBarChart = ({ data, keys }: any) => {
       data={data}
       keys={keys}
       colors={['#adfa1d']}
-      index='index'
       axisBottom={{
         tickSize: 0,
         tickRotation: -45,
