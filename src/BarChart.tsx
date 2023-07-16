@@ -1,7 +1,17 @@
 import { ResponsiveBar } from '@nivo/bar'
 
-const BarChart = ({ data, index, keys, colors, defs, fill, padding, margin, axisBottom }: any) => {
-  const dataWithIndex = data.map((d: any, i: number) => ({ ...d, index: i }))
+const BarChart = ({
+  data,
+  index = 'index',
+  keys,
+  colors,
+  defs,
+  fill,
+  padding,
+  margin,
+  axisBottom,
+}: any) => {
+  const dataWithIndex = data.map((d: any, i: number) => ({ ...d, index: i + 1 }))
 
   return (
     <div className='h-[200px]'>
@@ -14,7 +24,6 @@ const BarChart = ({ data, index, keys, colors, defs, fill, padding, margin, axis
         valueScale={{ type: 'linear' }}
         enableGridY={false}
         colors={colors}
-        // label={d => `${d.data.count}`}
         animate={true}
         axisBottom={axisBottom}
         enableLabel={false}
