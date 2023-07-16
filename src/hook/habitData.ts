@@ -4,7 +4,17 @@ import { useCallback, useEffect, useState } from 'react'
 export type HabitData = {
   date: Date
   [key: string]: Date | number | boolean
-  count: number
+  wakeupTime: Date
+  pushupCount: number
+  run: number
+  coldShower: boolean
+  breathe: boolean
+  read: boolean
+  journal: boolean
+  lift: boolean
+  yoga: boolean
+  vitamins: boolean
+  score: number
 }
 
 export type HabitHeader = {
@@ -43,8 +53,10 @@ const useHabitData = () => {
     const lastFetched = localStorage.getItem('lastFetched')
     return lastFetched ? new Date(lastFetched) : null
   })
+  const [isFetching, setIsFetching] = useState<boolean>(false)
 
   const refreshData = useCallback(async () => {
+    setIsFetching(true)
     fetch(HABIT_DATA_URL)
       .then(res => res.text())
       .then(data => {
@@ -53,6 +65,7 @@ const useHabitData = () => {
         const now = new Date()
         setLastFetched(now)
         localStorage.setItem('lastFetched', now.toISOString())
+        setIsFetching(false)
       })
   }, [])
 
@@ -64,9 +77,9 @@ const useHabitData = () => {
       setHabitData(parsedData)
       setHabitHeaders(headers)
     }
-  }, [rawHabitData])
+  }, [rawHabitData, refreshData])
 
-  return { habitData, habitHeaders, lastFetched, refreshData }
+  return { habitData, habitHeaders, lastFetched, refreshData, isFetching }
 }
 
 const parseData = (rawData: string) => {
@@ -94,7 +107,7 @@ const parseData = (rawData: string) => {
     // End if date is in next month
     if (date.getMonth() > new Date().getMonth()) break
 
-    const item: HabitData = { date, count: 0 }
+    const item: Partial<HabitData> = { date, count: 0 }
 
     for (let j = 2; j < splitData.length; j++) {
       const { datatype, key } = headers[j - 2]
@@ -102,12 +115,47 @@ const parseData = (rawData: string) => {
       const value = splitData[j][i].trim()
       const parsedValue = parser(value)
       item[key] = parsedValue
-      if (parsedValue) item.count++
     }
+    item.score = computeDayScore(item as HabitData)
     parsedData.push(item as HabitData)
   }
 
   return { parsedData, headers }
+}
+
+const GOAL_WAKEUP_TIME = (function () {
+  const date = new Date()
+  date.setHours(6, 0, 0, 0)
+  return date
+})()
+
+const computeDayScore = (habitData: HabitData) => {
+  let score = 0
+
+  // Wakeup time score
+  if (habitData.wakeupTime < GOAL_WAKEUP_TIME) score += 10
+  else {
+    const wakeupTimeScore =
+      10 - (habitData.wakeupTime.getTime() - GOAL_WAKEUP_TIME.getTime()) / 1000 / 60 / 15
+    score += wakeupTimeScore > 0 ? wakeupTimeScore : 0
+  }
+
+  // Pushups score
+  if (habitData.pushupCount) score += habitData.pushupCount * 0.1
+
+  // Running score
+  if (habitData.run) score += habitData.run * 3
+
+  // Boolean habit scores
+  if (habitData.coldShower) score += 5
+  if (habitData.breathe) score += 5
+  if (habitData.read) score += 5
+  if (habitData.journal) score += 5
+  if (habitData.lift) score += 5
+  if (habitData.yoga) score += 5
+  if (habitData.vitamins) score += 5
+
+  return Math.floor(score)
 }
 
 export default useHabitData
