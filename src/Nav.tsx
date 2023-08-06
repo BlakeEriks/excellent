@@ -6,21 +6,43 @@ import {
   navigationMenuTriggerStyle,
 } from './components/ui/navigation-menu'
 
-const Nav = () => {
+type NavProps = {
+  active: string
+  setActive: (value: string) => void
+}
+
+const Nav = ({ active, setActive }: NavProps) => {
   return (
     <NavigationMenu>
       <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuLink className={navigationMenuTriggerStyle()}>Overview</NavigationMenuLink>
+        <NavigationMenuItem onClick={() => setActive('overview')}>
+          <NavigationMenuLink
+            active={active === 'overview'}
+            className={navigationMenuTriggerStyle()}
+          >
+            Overview
+          </NavigationMenuLink>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink className={navigationMenuTriggerStyle()}>Records</NavigationMenuLink>
+        <NavigationMenuItem onClick={() => setActive('records')}>
+          <NavigationMenuLink
+            active={active === 'records'}
+            className={navigationMenuTriggerStyle()}
+          >
+            Records
+          </NavigationMenuLink>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink className={navigationMenuTriggerStyle()}>Streaks</NavigationMenuLink>
+        <NavigationMenuItem onClick={() => setActive('streaks')}>
+          <NavigationMenuLink
+            active={active === 'streaks'}
+            className={navigationMenuTriggerStyle()}
+          >
+            Streaks
+          </NavigationMenuLink>
         </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink className={navigationMenuTriggerStyle()}>Goals</NavigationMenuLink>
+        <NavigationMenuItem onClick={() => setActive('goals')}>
+          <NavigationMenuLink active={active === 'goals'} className={navigationMenuTriggerStyle()}>
+            Goals
+          </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
