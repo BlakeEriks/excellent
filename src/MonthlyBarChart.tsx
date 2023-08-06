@@ -38,7 +38,7 @@ const MonthlyBarChart = ({ data }: any) => {
     <div className='h-[200px]'>
       <ResponsiveBar
         data={data}
-        keys={['count', 'projected']}
+        keys={['score', 'projected']}
         indexBy={'month'}
         padding={0.3}
         margin={{ left: -20, top: 5, bottom: 40 }}
