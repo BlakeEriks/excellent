@@ -1,3 +1,4 @@
+import { parseTime } from '@/util/time'
 import { camelCase } from 'lodash'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -21,15 +22,7 @@ export type HabitHeader = {
   key: string
   icon: string | undefined
   label: string
-  datatype: string
-}
-
-const parseTime = (value: string) => {
-  if (!value) return false
-  const [hour, minute] = value.split(':')
-  const date = new Date()
-  date.setHours(Number(hour), Number(minute), 0, 0)
-  return date
+  datatype: 'number' | 'time' | 'boolean'
 }
 
 type ParserByType = {
@@ -89,7 +82,7 @@ const parseData = (rawData: string) => {
   const headers = []
   for (let i = 2; i < splitData.length; i++) {
     const split = splitData[i][0].split(' ')
-    const datatype = splitData[i][1]
+    const datatype = splitData[i][1] as 'number' | 'time' | 'boolean'
     const icon = split.shift()
     const label = split.join(' ')
     headers.push({ icon, label, key: camelCase(label), datatype })
@@ -116,7 +109,7 @@ const parseData = (rawData: string) => {
       const parsedValue = parser(value)
       item[key] = parsedValue
     }
-    item.score = computeDayScore(item as HabitData)
+    if (date < new Date()) item.score = computeDayScore(item as HabitData)
     parsedData.push(item as HabitData)
   }
 
