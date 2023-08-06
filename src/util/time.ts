@@ -17,3 +17,17 @@ export const timeDifference = (previous: Date) => {
     return `${days} days ago`
   }
 }
+
+export const parseTime = (value: string) => {
+  if (!value) return false
+  const [hour, minute] = value.split(':')
+  const date = new Date()
+  date.setHours(Number(hour), Number(minute), 0, 0)
+  return date
+}
+
+export const formatTime = (date: Date) => {
+  const averageHours = date.getHours()
+  const averageMinutes = date.getMinutes()
+  return `${averageHours}:${averageMinutes < 10 ? '0' : ''}${averageMinutes}`
+}
