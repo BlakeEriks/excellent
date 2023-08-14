@@ -31,6 +31,7 @@ const useGoals = (context: string) => {
   const [goals, setGoals] = useState(
     isEmpty(savedGoals) ? getEmptyGoals(contextKey, habitHeaders) : savedGoals
   )
+  const localGoals = goals[contextKey] ?? getEmptyGoals(contextKey, habitHeaders)[contextKey]
   const [errors, setErrors] = useState({} as { [key: string]: string })
 
   const validate = (goals: { [key: string]: string }) => {
@@ -54,9 +55,9 @@ const useGoals = (context: string) => {
   }
 
   const updateGoal = (update: { [key: string]: string }) => {
-    const localGoals = { ...goals[contextKey], ...update }
-    validate(localGoals)
-    setGoals({ ...goals, [contextKey]: localGoals })
+    const newGoals = { ...localGoals, ...update }
+    validate(newGoals)
+    setGoals({ ...goals, [contextKey]: newGoals })
   }
 
   const isGoalSaved = (key: string, value: string) =>
@@ -64,6 +65,7 @@ const useGoals = (context: string) => {
     get(JSON.parse(localStorage.getItem('goals') ?? '{}'), `${contextKey}.${key}`) === value
 
   const typedGoals = habitHeaders.reduce((acc, { key, datatype }) => {
+    if (!savedGoals[contextKey]) return acc
     if (datatype === 'number') {
       acc[key] = Number(savedGoals[contextKey][key])
     } else if (datatype === 'time') {
@@ -78,7 +80,7 @@ const useGoals = (context: string) => {
 
   return {
     typedGoals,
-    goals: goals[contextKey],
+    goals: localGoals,
     errors,
     saveGoals,
     updateGoal,

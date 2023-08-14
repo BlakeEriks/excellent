@@ -1,5 +1,5 @@
 import { Loader2, RefreshCcw, User } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Goals from './Goals'
 import Nav from './Nav'
 import Overview from './Overview'
@@ -44,9 +44,15 @@ const App = () => {
   const [context, setContext] = useState<string>(months[now.getMonth()].key)
   const [mode, setMode] = useState('overview')
 
+  useEffect(() => {
+    if (lastFetched && lastFetched.getTime() < now.getTime() - 1000 * 60 * 60 * 24) {
+      refreshData()
+    }
+  }, [])
+
   return (
     <div className='flex items-center justify-center h-screen w-full'>
-      <div className='relative flex-1 shadow-lg bg-background border max-w-5xl space-y-4 rounded-lg'>
+      <div className='relative flex-1 shadow-lg bg-background border max-w-fit space-y-4 rounded-lg'>
         {isFetching && (
           <Overlay>
             <Loader2 className='animate-spin' />

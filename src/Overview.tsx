@@ -1,7 +1,7 @@
-import { filter, groupBy, map, reject, sumBy, values } from 'lodash'
+import { chain, filter, groupBy, map, sumBy, values } from 'lodash'
 import { months } from './App'
 import DailyBarChart from './DailyBarChart'
-import HabitCard from './HabitCard'
+import HabitCard, { SimpleHabitCard } from './HabitCard'
 import MonthlyBarChart from './MonthlyBarChart'
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
 import useGoals from './hook/goals'
@@ -33,8 +33,10 @@ const Overview = ({ context }: OverviewProps) => {
   if (last) {
     last.projected = Math.floor((last.score / day) * 31) - last.score
   }
-
-  const numericHeaders = reject(habitHeaders, { datatype: 'boolean' })
+  const [numericHeaders, booleanHeaders] = chain(habitHeaders)
+    .groupBy({ datatype: 'boolean' })
+    .values()
+    .value()
   const contextData = filter(
     habitData,
     ({ date }) => context === 'year' || String(date.getMonth()) === context
@@ -57,14 +59,25 @@ const Overview = ({ context }: OverviewProps) => {
             )}
           </CardContent>
         </Card>
-        <div className='flex w-1/2 space-x-4'>
-          {numericHeaders.map(header => (
-            <HabitCard
-              {...header}
-              data={map(compactedContextData, header.key)}
-              goal={typedGoals[header.key]}
-            />
-          ))}
+        <div className='flex h-full flex-col w-1/2 space-y-4'>
+          <div className='flex flex-1 space-x-4 h-1/2'>
+            {numericHeaders?.map(header => (
+              <HabitCard
+                {...header}
+                data={map(compactedContextData, header.key)}
+                goal={typedGoals[header.key]}
+              />
+            ))}
+          </div>
+          <div className='flex flex-1 justify-between space-x-2 h-1/2'>
+            {booleanHeaders?.map(header => (
+              <SimpleHabitCard
+                {...header}
+                data={map(compactedContextData, header.key)}
+                goal={typedGoals[header.key]}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>

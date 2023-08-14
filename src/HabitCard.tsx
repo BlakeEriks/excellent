@@ -1,14 +1,7 @@
-import { chain, sum } from 'lodash'
+import { chain, isUndefined, sum } from 'lodash'
 import { StarIcon } from 'lucide-react'
 import Status from './components/Status'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from './components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './components/ui/card'
 import { HabitHeader } from './hook/habitData'
 import { formatTime } from './util/time'
 
@@ -16,6 +9,7 @@ type HabitCardProps = HabitHeader & {
   data: (number | boolean | Date)[]
   goal: number | boolean | Date
 }
+
 type HabitCardData = {
   average?: number | string
   sum?: number
@@ -25,18 +19,22 @@ type HabitCardData = {
 
 const now = new Date()
 
+function formatAsPercent(decimal: number) {
+  return Math.round(decimal * 100) + '%'
+}
+
 const HabitCard = ({ label, icon, datatype, data, goal }: HabitCardProps) => {
   if (!data?.length) return null
 
   const cardData: HabitCardData = {}
 
   switch (datatype) {
-    case 'boolean':
     case 'number':
       cardData.average = parseFloat(sum(data).toFixed(1))
-      console.log(((goal as number) * 31) / now.getDate())
-      cardData.goalStatus = ((goal as number) * now.getDate()) / 31 <= cardData.average
-      cardData.goalLabel = `${goal}`
+      if (goal) {
+        cardData.goalStatus = ((goal as number) * now.getDate()) / 31 <= cardData.average
+        cardData.goalLabel = `${goal}`
+      }
       break
     case 'time': {
       const avgInMs = chain(data)
@@ -44,35 +42,73 @@ const HabitCard = ({ label, icon, datatype, data, goal }: HabitCardProps) => {
         .meanBy(date => (date as Date).getTime())
         .value()
       cardData.average = formatTime(new Date(avgInMs))
-      cardData.goalStatus = avgInMs <= (goal as Date).getTime()
-      cardData.goalLabel = formatTime(goal as Date)
+      if (goal) {
+        cardData.goalStatus = avgInMs <= (goal as Date).getTime()
+        cardData.goalLabel = formatTime(goal as Date)
+      }
       break
     }
   }
-  console.log(goal)
+
+  return (
+    <Card className='flex-1'>
+      <CardTitle className='relative border-b'>
+        <CardHeader className='font-light text-center h-16 justify-center px-2 py-0 whitespace-nowrap w-[190px]'>
+          {icon} {label}
+        </CardHeader>
+        {/* <div className='absolute top-0 left-0 text-[16px] p-1 border-b border-r'>{icon}</div> */}
+      </CardTitle>
+      <CardContent className='pb-0'>
+        <h1 className='text-2xl text-slate-800 text-center leading-relaxed font-semibold'>
+          {!isUndefined(cardData.goalStatus) && (
+            <Status status={cardData.goalStatus ? 'green' : 'red'} />
+          )}
+          {cardData.average}
+        </h1>
+      </CardContent>
+      {!!goal && (
+        <CardFooter className='justify-end'>
+          <div className='flex items-center opacity-50 space-x-1'>
+            <StarIcon fill='#64748b' size={12} />
+            <span>{cardData.goalLabel}</span>
+          </div>
+        </CardFooter>
+      )}
+    </Card>
+  )
+}
+
+export const SimpleHabitCard = ({ label, icon, data, goal }: HabitCardProps) => {
+  if (!data?.length) return null
+
+  const cardData: HabitCardData = {}
+
+  cardData.average = sum(data) / now.getDate()
 
   return (
     <Card className='flex-1'>
       <CardTitle className='relative border-b'>
         <CardHeader className='font-light text-center h-16 justify-center px-2 py-0'>
-          {label}
+          <div className='flex flex-col text-sm font-semibold'>
+            <span>{icon}</span>
+            <span className='whitespace-nowrap'>{label}</span>
+          </div>
         </CardHeader>
-        <div className='absolute top-0 left-0 text-[16px] p-1 border-b border-r'>{icon}</div>
       </CardTitle>
-      <CardContent className='pb-0'>
-        <h1 className='text-2xl text-slate-800 text-center leading-relaxed font-semibold'>
-          <Status status={cardData.goalStatus ? 'green' : 'red'} />
-          {cardData.average}
-        </h1>
+      <CardContent className='p-0'>
+        <h2 className='text-lg text-slate-800 text-center leading-relaxed font-semibold'>
+          {!isUndefined(cardData.goalStatus) && (
+            <Status status={cardData.goalStatus ? 'green' : 'red'} />
+          )}
+          {formatAsPercent(cardData.average)}
+        </h2>
       </CardContent>
-      {goal && (
+      {!!goal && (
         <CardFooter className='justify-end'>
-          <CardDescription>
-            <div className='flex items-center'>
-              <StarIcon fill='#64748b' size={12} />
-              <span>{cardData.goalLabel}</span>
-            </div>
-          </CardDescription>
+          <div className='flex items-center opacity-50 space-x-1'>
+            <StarIcon fill='#64748b' size={12} />
+            <span>{cardData.goalLabel}</span>
+          </div>
         </CardFooter>
       )}
     </Card>
