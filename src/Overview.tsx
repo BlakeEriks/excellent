@@ -1,6 +1,6 @@
 import { chain, filter, groupBy, map, sumBy, values } from 'lodash'
 import { months } from './App'
-import DailyBarChart from './DailyBarChart'
+import DailyLineChart from './DailyLineChart'
 import HabitCard, { SimpleHabitCard } from './HabitCard'
 import MonthlyBarChart from './MonthlyBarChart'
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
@@ -51,11 +51,14 @@ const Overview = ({ context }: OverviewProps) => {
           <CardTitle>
             <CardHeader>Habit Volume</CardHeader>
           </CardTitle>
-          <CardContent className='pb-2'>
+          <CardContent className='pb-2 h-80'>
             {context === 'year' ? (
               <MonthlyBarChart data={volumeByMonth} />
             ) : (
-              <DailyBarChart data={contextData} keys={['score']} />
+              // <DailyBarChart data={contextData} keys={['score']} />
+              <DailyLineChart
+                data={months[now.getMonth()].key === context ? compactedContextData : contextData}
+              />
             )}
           </CardContent>
         </Card>

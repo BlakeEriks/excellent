@@ -116,13 +116,14 @@ const parseData = (rawData: string) => {
   return { parsedData, headers }
 }
 
+// 6 am
 const GOAL_WAKEUP_TIME = (function () {
   const date = new Date()
   date.setHours(6, 0, 0, 0)
   return date
 })()
 
-const computeDayScore = (habitData: HabitData) => {
+export const computeDayScore = (habitData: HabitData) => {
   let score = 0
 
   // Wakeup time score

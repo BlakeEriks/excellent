@@ -31,3 +31,6 @@ export const formatTime = (date: Date) => {
   const averageMinutes = date.getMinutes()
   return `${averageHours}:${averageMinutes < 10 ? '0' : ''}${averageMinutes}`
 }
+
+export const getDaysInMonth = (month: number, year = new Date().getFullYear()) =>
+  new Date(year, month, 0).getDate()
