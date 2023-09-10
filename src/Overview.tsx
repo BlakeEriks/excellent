@@ -21,7 +21,7 @@ const now = new Date()
 
 const Overview = ({ context }: OverviewProps) => {
   const { habitData, habitHeaders } = useHabitData()
-  const { typedGoals } = useGoals(context)
+  const { typedGoals, scoreGoal } = useGoals(context)
   const dataByMonth = groupBy(habitData, ({ date }: { date: Date }) => date.getMonth())
   const volumeByMonth: VolumeData[] = values(dataByMonth).map((dataset, index) => ({
     month: months[index].label.slice(0, 3),
@@ -42,14 +42,17 @@ const Overview = ({ context }: OverviewProps) => {
     ({ date }) => context === 'year' || String(date.getMonth()) === context
   )
   const compactedContextData = filter(contextData, ({ date }) => date.getTime() <= now.getTime())
+  const score = sumBy(compactedContextData, 'score')
 
   return (
     <div className='space-y-4 px-4'>
-      <h2 className='text-3xl font-bold tracking-tight'>Dashboard Overview</h2>
+      <h2 className='text-3xl font-bold tracking-tight'>Overview</h2>
       <div className='flex items-start space-x-4'>
         <Card className='w-1/2'>
           <CardTitle>
-            <CardHeader>Habit Volume</CardHeader>
+            <CardHeader className='pb-0'>
+              Score: {score} / {scoreGoal}
+            </CardHeader>
           </CardTitle>
           <CardContent className='pb-2 h-80'>
             {context === 'year' ? (
@@ -57,6 +60,7 @@ const Overview = ({ context }: OverviewProps) => {
             ) : (
               // <DailyBarChart data={contextData} keys={['score']} />
               <DailyLineChart
+                context={context}
                 data={months[now.getMonth()].key === context ? compactedContextData : contextData}
               />
             )}

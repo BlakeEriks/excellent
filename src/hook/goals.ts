@@ -1,21 +1,24 @@
 import { months } from '@/App'
-import { parseTime } from '@/util/time'
+import { getDaysInMonth, parseTime } from '@/util/time'
 import { useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
-import { compact, find, get, isEmpty, isEqual } from 'lodash'
-import { useState } from 'react'
-import useHabitData, { HabitHeader } from './habitData'
+import { compact, find, findIndex, get, isEmpty, isEqual } from 'lodash'
+import { useEffect, useMemo, useState } from 'react'
+import useHabitData, { HabitData, HabitHeader, computeDayScore } from './habitData'
+
+type Goal = { [key: string]: string }
+type Goals = { [key: string]: Goal }
 
 const getEmptyGoals = (key: string, headers: HabitHeader[]) => {
   return {
     [key]: headers.reduce((acc, { key }) => {
       acc[key] = ''
       return acc
-    }, {} as { [key: string]: string }),
+    }, {} as Goal),
   }
 }
 
-const goalsAtom = atomWithStorage('goals', {} as { [key: string]: { [key: string]: string } })
+const goalsAtom = atomWithStorage('goals', {} as Goals)
 
 const now = new Date()
 
@@ -28,11 +31,14 @@ const useGoals = (context: string) => {
   const { habitHeaders } = useHabitData()
   const [savedGoals, setSavedGoals] = useAtom(goalsAtom)
   const contextKey = compact([find(months, { key: context })?.label, now.getFullYear()]).join('-')
-  const [goals, setGoals] = useState(
-    isEmpty(savedGoals) ? getEmptyGoals(contextKey, habitHeaders) : savedGoals
-  )
+  const [goals, setGoals] = useState<Goals>({})
+  console.log('contextKey', contextKey, goals[contextKey], savedGoals, goals)
   const localGoals = goals[contextKey] ?? getEmptyGoals(contextKey, habitHeaders)[contextKey]
   const [errors, setErrors] = useState({} as { [key: string]: string })
+
+  useEffect(() => {
+    setGoals(isEmpty(savedGoals) ? getEmptyGoals(contextKey, habitHeaders) : savedGoals)
+  }, [savedGoals, contextKey, habitHeaders])
 
   const validate = (goals: { [key: string]: string }) => {
     const errors = {} as { [key: string]: string }
@@ -78,6 +84,33 @@ const useGoals = (context: string) => {
 
   const isAllGoalsSaved = isEqual(JSON.parse(localStorage.getItem('goals') ?? '{}'), goals)
 
+  const scoreGoal = useMemo(() => {
+    console.log('localGoals', localGoals)
+    const daysInMonth = getDaysInMonth(findIndex(months, { key: context }) + 1)
+    const { pushupCount, run, wakeupTime, ...booleans } = localGoals
+    const avgPushups = Number(pushupCount) / daysInMonth
+    const avgMiles = Number(run) / daysInMonth
+    const avgWakeupTime = parseTime(wakeupTime)
+
+    let score = 0
+    for (let i = 1; i <= daysInMonth; i++) {
+      const data: Partial<HabitData> = {
+        pushupCount: avgPushups,
+        run: avgMiles,
+        wakeupTime: avgWakeupTime as Date,
+      }
+      habitHeaders.forEach(
+        ({ key }) => (data[key] = data[key] ?? i / daysInMonth <= Number(booleans[key]))
+      )
+
+      score += computeDayScore(data as HabitData)
+    }
+
+    return score
+  }, [localGoals, context, habitHeaders])
+
+  console.log('scoregoal', scoreGoal)
+
   return {
     typedGoals,
     goals: localGoals,
@@ -86,6 +119,7 @@ const useGoals = (context: string) => {
     updateGoal,
     isGoalSaved,
     isAllGoalsSaved,
+    scoreGoal,
   }
 }
 

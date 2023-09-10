@@ -1,13 +1,10 @@
-import { findIndex, isEmpty } from 'lodash'
+import { isEmpty } from 'lodash'
 import { SaveAllIcon, Undo2Icon } from 'lucide-react'
-import { useMemo } from 'react'
-import { months } from './App'
 import Status from './components/Status'
 import { Button } from './components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './components/ui/card'
 import useGoals from './hook/goals'
-import useHabitData, { HabitData, computeDayScore } from './hook/habitData'
-import { getDaysInMonth, parseTime } from './util/time'
+import useHabitData from './hook/habitData'
 
 type GoalsProps = {
   context: string
@@ -15,31 +12,8 @@ type GoalsProps = {
 
 const Goals = ({ context }: GoalsProps) => {
   const { habitHeaders } = useHabitData()
-  const { goals, errors, saveGoals, updateGoal, isGoalSaved, isAllGoalsSaved } = useGoals(context)
-
-  const scoreGoal = useMemo(() => {
-    const daysInMonth = getDaysInMonth(findIndex(months, { key: context }) + 1)
-    const { pushupCount, run, wakeupTime, ...booleans } = goals
-    const avgPushups = Number(pushupCount) / daysInMonth
-    const avgMiles = Number(run) / daysInMonth
-    const avgWakeupTime = parseTime(wakeupTime)
-
-    let score = 0
-    for (let i = 1; i <= daysInMonth; i++) {
-      const data: Partial<HabitData> = {
-        pushupCount: avgPushups,
-        run: avgMiles,
-        wakeupTime: avgWakeupTime as Date,
-      }
-      habitHeaders.forEach(
-        ({ key }) => (data[key] = data[key] ?? i / daysInMonth <= Number(booleans[key]))
-      )
-
-      score += computeDayScore(data as HabitData)
-    }
-
-    return score
-  }, [goals, context, habitHeaders])
+  const { goals, errors, saveGoals, updateGoal, isGoalSaved, isAllGoalsSaved, scoreGoal } =
+    useGoals(context)
 
   return (
     <div className='space-y-4 px-4'>
