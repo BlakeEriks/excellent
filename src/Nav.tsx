@@ -13,8 +13,8 @@ type NavProps = {
 
 const Nav = ({ active, setActive }: NavProps) => {
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
+    <NavigationMenu className='w-full'>
+      <NavigationMenuList className='flex flex-col items-start w-full'>
         <NavigationMenuItem onClick={() => setActive('overview')}>
           <NavigationMenuLink
             active={active === 'overview'}
