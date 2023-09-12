@@ -54,7 +54,7 @@ const Overview = ({ context }: OverviewProps) => {
               Score: {score} / {scoreGoal}
             </CardHeader>
           </CardTitle>
-          <CardContent className='pb-2 h-80'>
+          <CardContent className='pb-2 h-96'>
             {context === 'year' ? (
               <MonthlyBarChart data={volumeByMonth} />
             ) : (
@@ -66,8 +66,8 @@ const Overview = ({ context }: OverviewProps) => {
             )}
           </CardContent>
         </Card>
-        <div className='flex h-full flex-col w-1/2 space-y-4'>
-          <div className='flex flex-1 space-x-4 h-1/2'>
+        <div className='flex h-full flex-row w-1/2 space-x-4'>
+          <div className='flex flex-col space-y-4 h-1/2'>
             {numericHeaders?.map(header => (
               <HabitCard
                 {...header}
@@ -76,7 +76,7 @@ const Overview = ({ context }: OverviewProps) => {
               />
             ))}
           </div>
-          <div className='flex flex-1 justify-between space-x-2 h-1/2'>
+          <div className='flex flex-wrap flex-1 gap-4 h-1/2'>
             {booleanHeaders?.map(header => (
               <SimpleHabitCard
                 {...header}
