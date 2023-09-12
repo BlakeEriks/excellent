@@ -1,20 +1,11 @@
-import { Loader2, RefreshCcw, User } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Loader2, RefreshCcw } from 'lucide-react'
+import { useState } from 'react'
 import Goals from './Goals'
-import Nav from './Nav'
 import Overview from './Overview'
+import Sider from './Sider'
 import { Button } from './components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from './components/ui/select'
 import useHabitData from './hook/habitData'
-import { timeDifference } from './util/time'
+import { readableDate, timeDifference } from './util/time'
 
 export const months = [
   { key: '0', icon: '❄️', label: 'January' },
@@ -40,61 +31,33 @@ const Overlay = ({ children }: any) => (
 )
 
 const App = () => {
-  const { lastFetched, refreshData, isFetching } = useHabitData()
+  const { lastFetched, isFetching, refreshData } = useHabitData()
   const [context, setContext] = useState<string>(months[now.getMonth()].key)
   const [mode, setMode] = useState('overview')
 
-  useEffect(() => {
-    if (lastFetched && lastFetched.getTime() < now.getTime() - 1000 * 60 * 60 * 24) {
-      refreshData()
-    }
-  }, [])
-
   return (
     <div className='flex items-center justify-center h-screen w-full'>
-      <div className='relative flex-1 shadow-lg bg-background border max-w-fit space-y-4 rounded-lg'>
+      <div className='flex flex-col relative flex-1 shadow-lg bg-background border max-w-fit gap-y-4 rounded-lg'>
         {isFetching && (
           <Overlay>
             <Loader2 className='animate-spin' />
           </Overlay>
         )}
-        <div className='flex h-16 items-center justify-between border-b p-4'>
-          <div className='flex space-x-4'>
-            <Select value={`${context}`} onValueChange={setContext}>
-              <SelectTrigger className='w-40 text-md'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='year' className='text-md border-b'>
-                  📆 {now.getFullYear()}
-                </SelectItem>
-                <SelectGroup>
-                  <SelectLabel>Months</SelectLabel>
-                  {months
-                    .slice(0, now.getMonth() + 1)
-                    .reverse()
-                    .map(({ icon, label, key }, index) => (
-                      <SelectItem key={index} value={key} className='text-md'>
-                        {icon} {label}
-                      </SelectItem>
-                    ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Nav active={mode} setActive={setMode} />
-          </div>
-          <div className='flex items-center space-x-4'>
-            <span>Blake Eriks</span>
-            <User className='h-6 w-6' />
-            <Button variant='outline' onClick={refreshData}>
-              <RefreshCcw />
-            </Button>
-          </div>
+
+        <div className='flex justify-between items-center border-b p-4 px-4 uppercase tracking-[1px]'>
+          <span className='text-xl'>{readableDate(now)}</span>
+          <Button variant='outline' onClick={refreshData}>
+            <RefreshCcw />
+          </Button>
         </div>
 
-        {mode === 'overview' && <Overview context={context} />}
+        <div className='flex space-x-4'>
+          <Sider context={context} setContext={setContext} mode={mode} setMode={setMode} />
 
-        {mode === 'goals' && <Goals context={context} />}
+          {mode === 'overview' && <Overview context={context} />}
+
+          {mode === 'goals' && <Goals context={context} />}
+        </div>
 
         <div className='border-t p-4'>
           {lastFetched && (
