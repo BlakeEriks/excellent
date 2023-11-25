@@ -1,8 +1,12 @@
-import { Loader2, RefreshCcw } from 'lucide-react'
+import { useAtom } from 'jotai'
+import { atomWithStorage } from 'jotai/utils'
+import { Link, Loader2, RefreshCcw } from 'lucide-react'
 import { useState } from 'react'
 import Goals from './Goals'
 import Overview from './Overview'
 import Sider from './Sider'
+import Flex from './components/Flex'
+import { SheetUrlDialog } from './components/SheetUrlDialog'
 import { Button } from './components/ui/button'
 import useHabitData from './hook/habitData'
 import { readableDate, timeDifference } from './util/time'
@@ -30,10 +34,22 @@ const Overlay = ({ children }: any) => (
   </div>
 )
 
+const sheetURL = atomWithStorage<string>('sheetURL', '')
+
 const App = () => {
   const { lastFetched, isFetching, refreshData } = useHabitData()
   const [context, setContext] = useState<string>(months[now.getMonth()].key)
   const [mode, setMode] = useState('overview')
+  const [url, setUrl] = useAtom(sheetURL)
+  const [openUrlDialog, setOpenUrlDialog] = useState(false)
+
+  const handleClickLinkButton = () => {
+    if (url) {
+      window.open(url, '_blank')
+    } else {
+      setOpenUrlDialog(true)
+    }
+  }
 
   return (
     <div className='flex items-center justify-center h-screen w-full'>
@@ -44,11 +60,16 @@ const App = () => {
           </Overlay>
         )}
 
-        <div className='flex justify-between items-center border-b p-4 px-4 uppercase tracking-[1px]'>
-          <span className='text-xl'>{readableDate(now)}</span>
-          <Button variant='outline' onClick={refreshData}>
-            <RefreshCcw />
-          </Button>
+        <div className='flex items-center border-b p-4 px-4 uppercase tracking-[1px]'>
+          <span className='text-xl flex-1'>{readableDate(now)}</span>
+          <Flex className='gap-2'>
+            <Button variant='outline' onClick={handleClickLinkButton}>
+              <Link />
+            </Button>
+            <Button variant='outline' onClick={refreshData}>
+              <RefreshCcw />
+            </Button>
+          </Flex>
         </div>
 
         <div className='flex space-x-4'>
@@ -67,6 +88,7 @@ const App = () => {
           )}
         </div>
       </div>
+      <SheetUrlDialog open={openUrlDialog} setOpen={setOpenUrlDialog} setUrl={setUrl} />
     </div>
   )
 }
