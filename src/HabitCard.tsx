@@ -53,13 +53,13 @@ const HabitCard = ({ label, icon, datatype, data, goal }: HabitCardProps) => {
   return (
     <Card className='flex-1 max-w-fit'>
       <CardTitle className='relative border-b'>
-        <CardHeader className='font-light text-center h-16 justify-center px-2 py-0 whitespace-nowrap w-[190px]'>
+        <CardHeader className='text-xl font-light text-center h-8 justify-center px-2 py-0 whitespace-nowrap w-[190px]'>
           {icon} {label}
         </CardHeader>
         {/* <div className='absolute top-0 left-0 text-[16px] p-1 border-b border-r'>{icon}</div> */}
       </CardTitle>
       <CardContent className='pb-0'>
-        <h1 className='text-2xl text-slate-800 text-center leading-relaxed font-semibold'>
+        <h1 className='text-xl text-slate-800 text-center leading-relaxed font-semibold'>
           {!isUndefined(cardData.goalStatus) && (
             <Status status={cardData.goalStatus ? 'green' : 'red'} />
           )}
@@ -86,7 +86,7 @@ export const SimpleHabitCard = ({ label, icon, data, goal }: HabitCardProps) => 
   cardData.average = sum(data) / now.getDate()
 
   return (
-    <Card className='w-[48%]'>
+    <Card className='w-[30%] xl:w-[48%]'>
       <CardTitle className='relative border-b'>
         <CardHeader className='font-light text-center h-16 justify-center px-2 py-0'>
           <div className='flex flex-col text-sm font-semibold'>

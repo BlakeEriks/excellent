@@ -22,7 +22,7 @@ export const parseTime = (value: string) => {
   if (!value) return false
   const [hour, minute] = value.split(':')
   const date = new Date()
-  date.setHours(Number(hour), Number(minute), 0, 0)
+  date.setHours(Number(hour), Number(minute ?? 0), 0, 0)
   return date
 }
 

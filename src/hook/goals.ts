@@ -32,7 +32,6 @@ const useGoals = (context: string) => {
   const [savedGoals, setSavedGoals] = useAtom(goalsAtom)
   const contextKey = compact([find(months, { key: context })?.label, now.getFullYear()]).join('-')
   const [goals, setGoals] = useState<Goals>({})
-  console.log('contextKey', contextKey, goals[contextKey], savedGoals, goals)
   const localGoals = goals[contextKey] ?? getEmptyGoals(contextKey, habitHeaders)[contextKey]
   const [errors, setErrors] = useState({} as { [key: string]: string })
 
@@ -85,7 +84,6 @@ const useGoals = (context: string) => {
   const isAllGoalsSaved = isEqual(JSON.parse(localStorage.getItem('goals') ?? '{}'), goals)
 
   const scoreGoal = useMemo(() => {
-    console.log('localGoals', localGoals)
     const daysInMonth = getDaysInMonth(findIndex(months, { key: context }) + 1)
     const { pushupCount, run, wakeupTime, ...booleans } = localGoals
     const avgPushups = Number(pushupCount) / daysInMonth
@@ -108,8 +106,6 @@ const useGoals = (context: string) => {
 
     return score
   }, [localGoals, context, habitHeaders])
-
-  console.log('scoregoal', scoreGoal)
 
   return {
     typedGoals,

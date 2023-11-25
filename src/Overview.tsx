@@ -47,8 +47,8 @@ const Overview = ({ context }: OverviewProps) => {
   return (
     <div className='space-y-4 px-4'>
       <h2 className='text-3xl font-bold tracking-tight'>Overview</h2>
-      <div className='flex items-start space-x-4'>
-        <Card className='w-1/2'>
+      <div className='flex gap-4 flex-col xl:flex-row items-start space-x-4'>
+        <Card className='w-full xl:w-1/2'>
           <CardTitle>
             <CardHeader className='pb-0'>
               Score: {score} / {scoreGoal}
@@ -66,7 +66,7 @@ const Overview = ({ context }: OverviewProps) => {
             )}
           </CardContent>
         </Card>
-        <div className='flex h-full flex-row w-1/2 space-x-4'>
+        <div className='flex w-full flex-row xl:w-1/2 xl:h-full gap-x-4'>
           <div className='flex flex-col space-y-4 h-1/2'>
             {numericHeaders?.map(header => (
               <HabitCard
