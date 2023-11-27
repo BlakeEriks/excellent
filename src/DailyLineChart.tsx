@@ -62,7 +62,7 @@ const DailyLineChart = ({
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: 'Date (MM/DD)',
+        legend: 'Day of Month',
         legendOffset: 36,
         legendPosition: 'middle',
       }}
