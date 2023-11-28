@@ -26,9 +26,6 @@ export function SheetUrlDialog({ open = false, setOpen, setUrl }: SheetUrlDialog
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* <DialogTrigger asChild>
-        <Button variant='outline'>Edit Profile</Button>
-      </DialogTrigger> */}
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
           <DialogTitle>Sheet URL</DialogTitle>

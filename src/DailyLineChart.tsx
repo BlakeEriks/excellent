@@ -1,6 +1,5 @@
 import { ResponsiveLine } from '@nivo/line'
-import { findIndex } from 'lodash'
-import { months } from './App'
+import { Context } from './App'
 import useGoals from './hook/goals'
 import { HabitData } from './hook/habitData'
 import { getDaysInMonth } from './util/time'
@@ -9,11 +8,11 @@ const DailyLineChart = ({
   context,
   data /* see data tab */,
 }: {
-  context: string
+  context: Context
   data: HabitData[]
 }) => {
   const { scoreGoal } = useGoals(context)
-  const daysInMonth = getDaysInMonth(findIndex(months, { key: context }))
+  const daysInMonth = getDaysInMonth(context.key)
   const scoreData = data.map((_, index) => ({
     x: index + 1,
     y: data.slice(0, index + 1).reduce((acc, item) => acc + (item.score ?? 0), 0),

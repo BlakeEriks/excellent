@@ -1,5 +1,5 @@
 import { chain, filter, groupBy, map, sumBy, values } from 'lodash'
-import { months } from './App'
+import { CONTEXT, Context, contexts } from './App'
 import DailyLineChart from './DailyLineChart'
 import HabitCard, { SimpleHabitCard } from './HabitCard'
 import MonthlyBarChart from './MonthlyBarChart'
@@ -8,7 +8,7 @@ import useGoals from './hook/goals'
 import useHabitData from './hook/habitData'
 
 type OverviewProps = {
-  context: string
+  context: Context
 }
 
 type VolumeData = {
@@ -24,7 +24,7 @@ const Overview = ({ context }: OverviewProps) => {
   const { typedGoals, scoreGoal } = useGoals(context)
   const dataByMonth = groupBy(habitData, ({ date }: { date: Date }) => date.getMonth())
   const volumeByMonth: VolumeData[] = values(dataByMonth).map((dataset, index) => ({
-    month: months[index].label.slice(0, 3),
+    month: contexts[index].label.slice(0, 3),
     score: sumBy(dataset, 'score'),
   }))
 
@@ -39,7 +39,7 @@ const Overview = ({ context }: OverviewProps) => {
     .value()
   const contextData = filter(
     habitData,
-    ({ date }) => context === 'year' || String(date.getMonth()) === context
+    ({ date }) => context.key === 0 || date.getMonth() === context.key
   )
   const compactedContextData = filter(contextData, ({ date }) => date.getTime() <= now.getTime())
   const score = sumBy(compactedContextData, 'score')
@@ -55,13 +55,13 @@ const Overview = ({ context }: OverviewProps) => {
             </CardHeader>
           </CardTitle>
           <CardContent className='pb-2 h-96'>
-            {context === 'year' ? (
+            {context.key === CONTEXT.Year ? (
               <MonthlyBarChart data={volumeByMonth} />
             ) : (
               // <DailyBarChart data={contextData} keys={['score']} />
               <DailyLineChart
                 context={context}
-                data={months[now.getMonth()].key === context ? compactedContextData : contextData}
+                data={contexts[now.getMonth()] === context ? compactedContextData : contextData}
               />
             )}
           </CardContent>

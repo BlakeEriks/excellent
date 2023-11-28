@@ -33,7 +33,7 @@ export const formatTime = (date: Date) => {
 }
 
 export const getDaysInMonth = (month: number, year = new Date().getFullYear()) =>
-  new Date(year, month, 0).getDate()
+  new Date(year, month - 1, 0).getDate()
 
 export const readableDate = (date: Date) => {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']

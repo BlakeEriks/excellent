@@ -1,8 +1,8 @@
-import { months } from '@/App'
+import { Context } from '@/App'
 import { getDaysInMonth, parseTime } from '@/util/time'
 import { useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
-import { compact, find, findIndex, get, isEmpty, isEqual } from 'lodash'
+import { compact, get, isEmpty, isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import useHabitData, { HabitData, HabitHeader, computeDayScore } from './habitData'
 
@@ -27,10 +27,10 @@ const isValidTime = (time: string) => {
   return pattern.test(time)
 }
 
-const useGoals = (context: string) => {
+const useGoals = (context: Context) => {
   const { habitHeaders } = useHabitData()
   const [savedGoals, setSavedGoals] = useAtom(goalsAtom)
-  const contextKey = compact([find(months, { key: context })?.label, now.getFullYear()]).join('-')
+  const contextKey = compact([context.label, now.getFullYear()]).join('-')
   const [goals, setGoals] = useState<Goals>({})
   const localGoals = goals[contextKey] ?? getEmptyGoals(contextKey, habitHeaders)[contextKey]
   const [errors, setErrors] = useState({} as { [key: string]: string })
@@ -84,7 +84,7 @@ const useGoals = (context: string) => {
   const isAllGoalsSaved = isEqual(JSON.parse(localStorage.getItem('goals') ?? '{}'), goals)
 
   const scoreGoal = useMemo(() => {
-    const daysInMonth = getDaysInMonth(findIndex(months, { key: context }) + 1)
+    const daysInMonth = getDaysInMonth(context.key)
     const { pushupCount, run, wakeupTime, ...booleans } = localGoals
     const avgPushups = Number(pushupCount) / daysInMonth
     const avgMiles = Number(run) / daysInMonth

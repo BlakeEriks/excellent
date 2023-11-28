@@ -1,6 +1,6 @@
 import { User } from 'lucide-react'
 import { useEffect } from 'react'
-import { months } from './App'
+import { Context, contexts } from './App'
 import Nav from './Nav'
 import {
   Select,
@@ -16,8 +16,8 @@ import useHabitData from './hook/habitData'
 const now = new Date()
 
 type HeaderProps = {
-  context: string
-  setContext: (context: string) => void
+  context: Context
+  setContext: (context: Context) => void
   mode: string
   setMode: (mode: string) => void
 }
@@ -34,7 +34,10 @@ const Sider = ({ context, setContext, mode, setMode }: HeaderProps) => {
   return (
     <div className='flex flex-col items-center justify-between p-4 border-r'>
       <div className='flex flex-col space-y-4'>
-        <Select value={`${context}`} onValueChange={setContext}>
+        <Select
+          value={context.key.toString()}
+          onValueChange={val => setContext(contexts[Number(val)])}
+        >
           <SelectTrigger className='w-40 text-md'>
             <SelectValue />
           </SelectTrigger>
@@ -44,11 +47,11 @@ const Sider = ({ context, setContext, mode, setMode }: HeaderProps) => {
             </SelectItem>
             <SelectGroup>
               <SelectLabel>Months</SelectLabel>
-              {months
+              {contexts
                 .slice(0, now.getMonth() + 1)
                 .reverse()
                 .map(({ icon, label, key }, index) => (
-                  <SelectItem key={index} value={key} className='text-md'>
+                  <SelectItem key={index} value={key.toString()} className='text-md'>
                     {icon} {label}
                   </SelectItem>
                 ))}

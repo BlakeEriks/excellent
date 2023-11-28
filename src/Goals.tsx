@@ -1,5 +1,6 @@
 import { isEmpty } from 'lodash'
 import { SaveAllIcon, Undo2Icon } from 'lucide-react'
+import { Context } from './App'
 import Status from './components/Status'
 import { Button } from './components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './components/ui/card'
@@ -7,7 +8,7 @@ import useGoals from './hook/goals'
 import useHabitData from './hook/habitData'
 
 type GoalsProps = {
-  context: string
+  context: Context
 }
 
 const Goals = ({ context }: GoalsProps) => {
