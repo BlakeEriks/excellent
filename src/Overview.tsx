@@ -39,7 +39,7 @@ const Overview = ({ context }: OverviewProps) => {
     .value()
   const contextData = filter(
     habitData,
-    ({ date }) => context.key === 0 || date.getMonth() === context.key
+    ({ date }) => context.key === 0 || date.getMonth() + 1 === context.key
   )
   const compactedContextData = filter(contextData, ({ date }) => date.getTime() <= now.getTime())
   const score = sumBy(compactedContextData, 'score')
