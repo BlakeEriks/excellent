@@ -36,13 +36,16 @@ const Sider = ({ context, setContext, mode, setMode }: HeaderProps) => {
       <div className='flex flex-col space-y-4'>
         <Select
           value={context.key.toString()}
-          onValueChange={val => setContext(contexts[Number(val)])}
+          onValueChange={val => {
+            console.log(val)
+            setContext(contexts[Number(val)])
+          }}
         >
           <SelectTrigger className='w-40 text-md'>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value='year' className='text-md border-b'>
+            <SelectItem value='12' className='text-md border-b'>
               📆 {now.getFullYear()}
             </SelectItem>
             <SelectGroup>

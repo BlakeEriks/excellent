@@ -18,7 +18,6 @@ export type Context = {
 }
 
 export enum CONTEXT {
-  Year,
   January,
   Febuary,
   March,
@@ -31,22 +30,23 @@ export enum CONTEXT {
   October,
   November,
   December,
+  Year,
 }
 
 export const contexts: Context[] = [
-  { key: 0, icon: '📅', label: 'Year' },
-  { key: 1, icon: '❄️', label: 'January' },
-  { key: 2, icon: '🌹', label: 'Febuary' },
-  { key: 3, icon: '☘️', label: 'March' },
-  { key: 4, icon: '🌺', label: 'April' },
-  { key: 5, icon: '🐝', label: 'May' },
-  { key: 6, icon: '🌼', label: 'June' },
-  { key: 7, icon: '☀️', label: 'July' },
-  { key: 8, icon: '🍎', label: 'August' },
-  { key: 9, icon: '🍁', label: 'September' },
-  { key: 10, icon: '🎃', label: 'October' },
-  { key: 11, icon: '🦃', label: 'November' },
-  { key: 12, icon: '🎄', label: 'December' },
+  { key: 0, icon: '❄️', label: 'January' },
+  { key: 1, icon: '🌹', label: 'Febuary' },
+  { key: 2, icon: '☘️', label: 'March' },
+  { key: 3, icon: '🌺', label: 'April' },
+  { key: 4, icon: '🐝', label: 'May' },
+  { key: 5, icon: '🌼', label: 'June' },
+  { key: 6, icon: '☀️', label: 'July' },
+  { key: 7, icon: '🍎', label: 'August' },
+  { key: 8, icon: '🍁', label: 'September' },
+  { key: 9, icon: '🎃', label: 'October' },
+  { key: 10, icon: '🦃', label: 'November' },
+  { key: 11, icon: '🎄', label: 'December' },
+  { key: 12, icon: '📆', label: 'Year' },
 ]
 
 const now = new Date()
