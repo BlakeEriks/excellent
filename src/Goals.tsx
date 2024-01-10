@@ -1,3 +1,4 @@
+import { useAtomValue } from 'jotai'
 import { isEmpty } from 'lodash'
 import { SaveAllIcon, Undo2Icon } from 'lucide-react'
 import { Context } from './App'
@@ -5,14 +6,14 @@ import Status from './components/Status'
 import { Button } from './components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './components/ui/card'
 import useGoals from './hook/goals'
-import useHabitData from './hook/habitData'
+import { activeSheetAtom } from './state/sheet'
 
 type GoalsProps = {
   context: Context
 }
 
 const Goals = ({ context }: GoalsProps) => {
-  const { habitHeaders } = useHabitData()
+  const { headers } = useAtomValue(activeSheetAtom)
   const { goals, errors, saveGoals, updateGoal, isGoalSaved, isAllGoalsSaved, scoreGoal } =
     useGoals(context)
 
@@ -25,7 +26,7 @@ const Goals = ({ context }: GoalsProps) => {
           <CardHeader className='flex-1 pl-0'>Value</CardHeader>
         </CardTitle>
         <CardContent className='space-y-2 pb-0'>
-          {habitHeaders.map(({ label, icon, key }) => (
+          {headers.map(({ label, icon, key }) => (
             <div className='flex justify-between items-center space-x-2' key={key}>
               <h3 className='flex-1 text-lg'>
                 {icon} {label}:
