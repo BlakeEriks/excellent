@@ -1,3 +1,4 @@
+import { useAtomValue } from 'jotai'
 import { chain, filter, groupBy, map, sumBy, values } from 'lodash'
 import { CONTEXT, Context, contexts } from './App'
 import DailyLineChart from './DailyLineChart'
@@ -5,7 +6,7 @@ import HabitCard, { SimpleHabitCard } from './HabitCard'
 import MonthlyBarChart from './MonthlyBarChart'
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/card'
 import useGoals from './hook/goals'
-import useHabitData from './hook/habitData'
+import { activeSheetAtom } from './state/sheet'
 
 type OverviewProps = {
   context: Context
@@ -20,9 +21,11 @@ type VolumeData = {
 const now = new Date()
 
 const Overview = ({ context }: OverviewProps) => {
-  const { habitData, habitHeaders } = useHabitData()
+  // const { habitData, habitHeaders } = useHabitData()
+  const { data, headers } = useAtomValue(activeSheetAtom)
   const { typedGoals, scoreGoal } = useGoals(context)
-  const dataByMonth = groupBy(habitData, ({ date }: { date: Date }) => date.getMonth())
+  console.log('data', data)
+  const dataByMonth = groupBy(data, ({ date }: { date: Date }) => date.getMonth())
   const volumeByMonth: VolumeData[] = values(dataByMonth).map((dataset, index) => ({
     month: contexts[index].label.slice(0, 3),
     score: sumBy(dataset, 'score'),
@@ -33,14 +36,16 @@ const Overview = ({ context }: OverviewProps) => {
   if (last) {
     last.projected = Math.floor((last.score / day) * 31) - last.score
   }
-  const [numericHeaders, booleanHeaders] = chain(habitHeaders)
+  const [numericHeaders, booleanHeaders] = chain(headers)
     .groupBy({ datatype: 'boolean' })
     .values()
     .value()
   const contextData = filter(
-    habitData,
-    ({ date }) => context.key === 0 || date.getMonth() + 1 === context.key
+    data,
+    ({ date }) => context.key === 12 || date.getMonth() === context.key
   )
+  console.log('ley', context.key)
+  console.log('contextData', contextData)
   const compactedContextData = filter(contextData, ({ date }) => date.getTime() <= now.getTime())
   const score = sumBy(compactedContextData, 'score')
 
