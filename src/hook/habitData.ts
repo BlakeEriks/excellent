@@ -1,6 +1,8 @@
+import { activeSheetAtom } from '@/state/sheet'
 import { parseTime } from '@/util/time'
+import { useAtom } from 'jotai'
 import { camelCase } from 'lodash'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export type HabitData = {
   date: Date
@@ -35,44 +37,46 @@ const parserByType: ParserByType = {
   time: (value: string) => parseTime(value),
 }
 
-const HABIT_DATA_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vQuGKRM2RxWTaV4laTKCyUvtNBzqXlImi-D-Y9vCqMjB-z_GSDwodNZv0-ePFJOgQGAvJIeNlhah_7j/pub?output=csv'
-
 const useHabitData = () => {
-  const [rawHabitData, setRawHabitData] = useState<string | null>(localStorage.getItem('data'))
+  const [activeSheet, updateSheet] = useAtom(activeSheetAtom)
   const [habitData, setHabitData] = useState<HabitData[]>([])
   const [habitHeaders, setHabitHeaders] = useState<HabitHeader[]>([])
-  const [lastFetched, setLastFetched] = useState<Date | null>(() => {
-    const lastFetched = localStorage.getItem('lastFetched')
-    return lastFetched ? new Date(lastFetched) : null
-  })
+  // const [lastFetched, setLastFetched] = useState<Date | null>(() => {
+  //   const lastFetched = localStorage.getItem('lastFetched')
+  //   return lastFetched ? new Date(lastFetched) : null
+  // })
   const [isFetching, setIsFetching] = useState<boolean>(false)
 
   const refreshData = useCallback(async () => {
     setIsFetching(true)
-    fetch(HABIT_DATA_URL)
+    fetch(activeSheet.url)
       .then(res => res.text())
       .then(data => {
-        setRawHabitData(data)
-        localStorage.setItem('data', data)
-        const now = new Date()
-        setLastFetched(now)
-        localStorage.setItem('lastFetched', now.toISOString())
+        updateSheet({ data, lastFetched: new Date() })
         setIsFetching(false)
       })
-  }, [])
+  }, [activeSheet.url, updateSheet])
 
-  useEffect(() => {
-    if (!rawHabitData) {
-      refreshData()
-    } else {
-      const { parsedData, headers } = parseData(rawHabitData)
-      setHabitData(parsedData)
-      setHabitHeaders(headers)
-    }
-  }, [rawHabitData, refreshData])
+  // useEffect(() => {
+  //   console.log('update habit data')
+  //   if (!activeSheet.data) {
+  //     refreshData()
+  //   } else {
+  //     const { parsedData, headers } = parseData(activeSheet.data)
+  //     setHabitData(parsedData)
+  //     setHabitHeaders(headers)
+  //   }
+  // }, [activeSheet.data, refreshData])
 
-  return { habitData, habitHeaders, lastFetched, refreshData, isFetching }
+  // console.log('sheet', activeSheet.data)
+
+  return {
+    habitData,
+    habitHeaders,
+    lastFetched: activeSheet.lastFetched,
+    refreshData,
+    isFetching,
+  }
 }
 
 const parseData = (rawData: string) => {
