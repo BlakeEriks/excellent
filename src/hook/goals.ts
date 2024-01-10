@@ -1,10 +1,11 @@
 import { Context } from '@/App'
+import { activeSheetAtom } from '@/state/sheet'
 import { getDaysInMonth, parseTime } from '@/util/time'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { compact, get, isEmpty, isEqual } from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
-import useHabitData, { HabitData, HabitHeader, computeDayScore } from './habitData'
+import { HabitData, HabitHeader, computeDayScore } from './habitData'
 
 type Goal = { [key: string]: string }
 type Goals = { [key: string]: Goal }
@@ -28,20 +29,22 @@ const isValidTime = (time: string) => {
 }
 
 const useGoals = (context: Context) => {
-  const { habitHeaders } = useHabitData()
+  const { headers = [] } = useAtomValue(activeSheetAtom)
   const [savedGoals, setSavedGoals] = useAtom(goalsAtom)
   const contextKey = compact([context.label, now.getFullYear()]).join('-')
   const [goals, setGoals] = useState<Goals>({})
-  const localGoals = goals[contextKey] ?? getEmptyGoals(contextKey, habitHeaders)[contextKey]
+  const localGoals = goals[contextKey] ?? getEmptyGoals(contextKey, headers)[contextKey]
   const [errors, setErrors] = useState({} as { [key: string]: string })
 
+  console.log(headers)
+
   useEffect(() => {
-    setGoals(isEmpty(savedGoals) ? getEmptyGoals(contextKey, habitHeaders) : savedGoals)
-  }, [savedGoals, contextKey, habitHeaders])
+    setGoals(isEmpty(savedGoals) ? getEmptyGoals(contextKey, headers) : savedGoals)
+  }, [savedGoals, contextKey, headers])
 
   const validate = (goals: { [key: string]: string }) => {
     const errors = {} as { [key: string]: string }
-    habitHeaders.forEach(({ key, datatype }) => {
+    headers.forEach(({ key, datatype }) => {
       if (datatype === 'number' && goals[key] && isNaN(Number(goals[key]))) {
         errors[key] = 'Must be a number'
       }
@@ -69,7 +72,7 @@ const useGoals = (context: Context) => {
     value &&
     get(JSON.parse(localStorage.getItem('goals') ?? '{}'), `${contextKey}.${key}`) === value
 
-  const typedGoals = habitHeaders.reduce((acc, { key, datatype }) => {
+  const typedGoals = headers.reduce((acc, { key, datatype }) => {
     if (!savedGoals[contextKey]) return acc
     if (datatype === 'number') {
       acc[key] = Number(savedGoals[contextKey][key])
@@ -97,7 +100,7 @@ const useGoals = (context: Context) => {
         run: avgMiles,
         wakeupTime: avgWakeupTime as Date,
       }
-      habitHeaders.forEach(
+      headers.forEach(
         ({ key }) => (data[key] = data[key] ?? i / daysInMonth <= Number(booleans[key]))
       )
 
@@ -105,7 +108,7 @@ const useGoals = (context: Context) => {
     }
 
     return score
-  }, [localGoals, context, habitHeaders])
+  }, [localGoals, context, headers])
 
   return {
     typedGoals,
