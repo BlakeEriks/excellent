@@ -1,14 +1,19 @@
-import { useAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
-import { Link, Loader2, RefreshCcw } from 'lucide-react'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { RefreshCcw } from 'lucide-react'
 import { ReactNode, useState } from 'react'
 import Goals from './Goals'
 import Overview from './Overview'
 import Sider from './Sider'
 import Flex from './components/Flex'
-import { SheetUrlDialog } from './components/SheetUrlDialog'
 import { Button } from './components/ui/button'
-import useHabitData from './hook/habitData'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './components/ui/select'
+import { activeSheetAtom, activeSheetIndexAtom, refreshSheetAtom, sheetsAtom } from './state/sheet'
 import { readableDate, timeDifference } from './util/time'
 
 export type Context = {
@@ -57,39 +62,56 @@ const Overlay = ({ children }: { children: ReactNode }) => (
   </div>
 )
 
-const sheetURL = atomWithStorage<string>('sheetURL', '')
-
 const App = () => {
-  const { lastFetched, isFetching, refreshData } = useHabitData()
+  const { data, lastFetched } = useAtomValue(activeSheetAtom)
+  const refreshSheet = useSetAtom(refreshSheetAtom)
   const [context, setContext] = useState<Context>(contexts[now.getMonth()])
   const [mode, setMode] = useState('overview')
-  const [url, setUrl] = useAtom(sheetURL)
-  const [openUrlDialog, setOpenUrlDialog] = useState(false)
+  // const [openUrlDialog, setOpenUrlDialog] = useState(false)
+  const sheetUrls = useAtomValue(sheetsAtom)
+  const [activeSheetIndex, setActiveSheetIndex] = useAtom(activeSheetIndexAtom)
+  const activeSheet = useAtomValue(activeSheetAtom)
+
+  console.log('data', data, activeSheetIndex)
 
   const handleClickLinkButton = () => {
-    if (url) {
-      window.open(url, '_blank')
-    } else {
-      setOpenUrlDialog(true)
+    if (activeSheet) {
+      window.open(activeSheet.url, '_blank')
     }
   }
 
   return (
     <div className='flex items-center justify-center h-screen w-full'>
       <div className='flex flex-col relative flex-1 shadow-lg bg-background border max-w-fit gap-y-4 rounded-lg'>
-        {isFetching && (
+        {/* {isFetching && (
           <Overlay>
             <Loader2 className='animate-spin' />
           </Overlay>
-        )}
-
-        <div className='flex items-center border-b p-4 px-4 uppercase tracking-[1px]'>
+        )} */}
+        <div className='flex items-center border-b p-4 px-4 uppercase tracking-[1px] space-x-2'>
+          <Select
+            value={activeSheetIndex.toString()}
+            onValueChange={val => setActiveSheetIndex(Number(val))}
+          >
+            <SelectTrigger className='w-40 text-md'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {sheetUrls
+                .sort((a, b) => b.year - a.year)
+                .map(({ year }, index) => (
+                  <SelectItem key={index} value={index.toString()} className='text-md border-b'>
+                    {year}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
           <span className='text-xl flex-1'>{readableDate(now)}</span>
           <Flex className='gap-2'>
-            <Button variant='outline' onClick={handleClickLinkButton}>
+            {/* <Button variant='outline' onClick={handleClickLinkButton}>
               <Link />
-            </Button>
-            <Button variant='outline' onClick={refreshData}>
+            </Button> */}
+            <Button variant='outline' onClick={refreshSheet}>
               <RefreshCcw />
             </Button>
           </Flex>
@@ -111,7 +133,7 @@ const App = () => {
           )}
         </div>
       </div>
-      <SheetUrlDialog open={openUrlDialog} setOpen={setOpenUrlDialog} setUrl={setUrl} />
+      {/* <SheetUrlDialog open={openUrlDialog} setOpen={setOpenUrlDialog} setUrl={setUrl} /> */}
     </div>
   )
 }
