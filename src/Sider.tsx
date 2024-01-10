@@ -1,5 +1,6 @@
+import { useAtomValue } from 'jotai'
 import { User } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Context, contexts } from './App'
 import Nav from './Nav'
 import {
@@ -12,6 +13,7 @@ import {
   SelectValue,
 } from './components/ui/select'
 import useHabitData from './hook/habitData'
+import { activeSheetAtom } from './state/sheet'
 
 const now = new Date()
 
@@ -24,22 +26,27 @@ type HeaderProps = {
 
 const Sider = ({ context, setContext, mode, setMode }: HeaderProps) => {
   const { lastFetched, refreshData } = useHabitData()
+  const { year } = useAtomValue(activeSheetAtom)
 
   useEffect(() => {
     if (lastFetched && lastFetched.getTime() < now.getTime() - 1000 * 60 * 60 * 24) {
       refreshData()
     }
-  }, [])
+  }, [lastFetched, refreshData])
+
+  const availableContexts = useMemo(() => {
+    if (year === now.getFullYear()) {
+      return contexts.slice(0, now.getMonth() + 1)
+    }
+    return contexts.slice(0, 12)
+  }, [year])
 
   return (
     <div className='flex flex-col items-center justify-between p-4 border-r'>
       <div className='flex flex-col space-y-4'>
         <Select
           value={context.key.toString()}
-          onValueChange={val => {
-            console.log(val)
-            setContext(contexts[Number(val)])
-          }}
+          onValueChange={val => setContext(contexts[Number(val)])}
         >
           <SelectTrigger className='w-40 text-md'>
             <SelectValue />
@@ -50,14 +57,11 @@ const Sider = ({ context, setContext, mode, setMode }: HeaderProps) => {
             </SelectItem>
             <SelectGroup>
               <SelectLabel>Months</SelectLabel>
-              {contexts
-                .slice(0, now.getMonth() + 1)
-                .reverse()
-                .map(({ icon, label, key }, index) => (
-                  <SelectItem key={index} value={key.toString()} className='text-md'>
-                    {icon} {label}
-                  </SelectItem>
-                ))}
+              {availableContexts.map(({ icon, label, key }, index) => (
+                <SelectItem key={index} value={key.toString()} className='text-md'>
+                  {icon} {label}
+                </SelectItem>
+              ))}
             </SelectGroup>
           </SelectContent>
         </Select>
