@@ -1,39 +1,39 @@
 import { ResponsiveLine } from '@nivo/line'
-import { Context } from './App'
-import useGoals from './hook/goals'
 import { HabitData } from './hook/habitData'
-import { getDaysInMonth } from './util/time'
 
 const DailyLineChart = ({
-  context,
+  // context,
   data /* see data tab */,
 }: {
-  context: Context
-  data: HabitData[]
+  // context: Context
+  data: HabitData[][]
 }) => {
-  const { scoreGoal } = useGoals(context)
-  const daysInMonth = getDaysInMonth(context.key)
-  const scoreData = data.map((_, index) => ({
-    x: index + 1,
-    y: data.slice(0, index + 1).reduce((acc, item) => acc + (item.score ?? 0), 0),
-  }))
-
-  const goalData = new Array(daysInMonth)
-    .fill(0)
-    .map((_, index) => ({
+  // const { scoreGoal } = useGoals(context)
+  // const daysInMonth = getDaysInMonth(context.key)
+  const scoreData = (data: HabitData[]) =>
+    data.map((_, index) => ({
       x: index + 1,
-      y: Math.ceil(((index + 1) * scoreGoal) / daysInMonth),
+      y: data.slice(0, index + 1).reduce((acc, item) => acc + (item.score ?? 0), 0),
     }))
-    .slice(0, scoreData.length)
+
+  const processedData = data.map(scoreData)
+
+  // const goalData = new Array(daysInMonth)
+  //   .fill(0)
+  //   .map((_, index) => ({
+  //     x: index + 1,
+  //     y: Math.ceil(((index + 1) * scoreGoal) / daysInMonth),
+  //   }))
+  //   .slice(0, scoreData.length)
 
   const data2 = [
     {
       id: 'score',
-      data: scoreData,
+      data: processedData[0],
     },
     {
       id: 'goal',
-      data: goalData,
+      data: processedData[1],
     },
   ]
 
@@ -61,7 +61,7 @@ const DailyLineChart = ({
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: 'Day of Month',
+        legend: 'Day of Week',
         legendOffset: 36,
         legendPosition: 'middle',
       }}

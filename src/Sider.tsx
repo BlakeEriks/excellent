@@ -53,7 +53,7 @@ const Sider = ({ context, setContext, mode, setMode }: HeaderProps) => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value='12' className='text-md border-b'>
-              📆 {now.getFullYear()}
+              📆 Year
             </SelectItem>
             <SelectGroup>
               <SelectLabel>Months</SelectLabel>

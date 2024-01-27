@@ -67,3 +67,10 @@ export const readableDate = (date: Date) => {
 
   return `${dayOfWeek}, ${month} ${dayOfMonth}${suffix}`
 }
+
+export const getDayOfYear = (date: Date) => {
+  const start = new Date(date.getFullYear(), 0, 1) // January 1st of the current year
+  const diff = date.getTime() - start.getTime() // difference in milliseconds
+  const oneDay = 1000 * 60 * 60 * 24 // milliseconds in one day
+  return Math.ceil(diff / oneDay) // return the day of the year
+}

@@ -49,11 +49,11 @@ export const activeSheetIndexAtom = atom(0)
 
 export const sheetsAtom = atomWithStorage<Sheet[]>('sheets', [
   {
-    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTo2fwhQiLITc59cQr-usu26mzYUIxMZ30bPFXEhm-jDroJEN0oXhCsUnahP8TkTEy_WSehLkTbut1B/pub?output=csv',
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQRdlp8N7KIvQvh3dXGdfjppsnHuoEjfAblJu1Om8Em64bWeEJHTcYhqHPihf1Ow4qT5kAqrNRpTB1U/pub?output=csv',
     year: 2024,
   },
   {
-    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQuGKRM2RxWTaV4laTKCyUvtNBzqXlImi-D-Y9vCqMjB-z_GSDwodNZv0-ePFJOgQGAvJIeNlhah_7j/pub?output=csv',
+    url: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7dzI5bxMlU5EjDHP3V0OmKq866r0qN8TAjW309EYlTyNDgd0F9ieJrCXZkuScO4OdkPzf2t_iCF9M/pub?output=csv',
     year: 2023,
   },
 ])

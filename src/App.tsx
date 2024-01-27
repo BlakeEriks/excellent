@@ -2,7 +2,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RefreshCcw } from 'lucide-react'
 import { ReactNode, useState } from 'react'
 import Goals from './Goals'
-import Overview from './Overview'
+import Overview2 from './Overview2'
 import Sider from './Sider'
 import Flex from './components/Flex'
 import { Button } from './components/ui/button'
@@ -120,7 +120,7 @@ const App = () => {
         <div className='flex space-x-4'>
           <Sider context={context} setContext={setContext} mode={mode} setMode={setMode} />
 
-          {mode === 'overview' && <Overview context={context} />}
+          {mode === 'overview' && <Overview2 context={context} />}
 
           {mode === 'goals' && <Goals context={context} />}
         </div>
